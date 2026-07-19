@@ -12,6 +12,7 @@ import EditPost from './pages/EditPost';
 import Profile from './pages/Profile';
 import MyProfile from './pages/MyProfile';
 import Inbox from './pages/Inbox';
+import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             <Route path="/posts/:id" element={<PostDetail />} />
             <Route path="/users/:id" element={<Profile />} />
             <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />

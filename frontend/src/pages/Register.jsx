@@ -11,7 +11,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorize/google?redirect_uri=http://localhost:3000/oauth2/callback';
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
   };
 
   const handleSubmit = async (e) => {
