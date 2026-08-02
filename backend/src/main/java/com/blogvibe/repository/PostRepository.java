@@ -22,4 +22,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> searchPosts(String query, Pageable pageable);
 
     Page<Post> findByCategoryAndStatusOrderByCreatedAtDesc(String category, Post.PostStatus status, Pageable pageable);
+
+    long countByStatus(Post.PostStatus status);
 }

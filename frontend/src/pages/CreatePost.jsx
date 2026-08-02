@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import { postsApi } from '../api';
 import toast from 'react-hot-toast';
 import { Image, X } from 'lucide-react';
+import ModerationReport from '../components/ModerationReport';
 
 const CATEGORIES = ['Technology', 'Travel', 'Food', 'Lifestyle', 'Health', 'Business', 'Art', 'Science', 'Other'];
 
@@ -18,6 +19,7 @@ export default function CreatePost() {
   const [coverImage, setCoverImage] = useState('');
   const [coverPreview, setCoverPreview] = useState('');
   const [saving, setSaving] = useState(false);
+  const [moderationReport, setModerationReport] = useState(null);
   const coverRef = useRef();
   const quillRef = useRef();
 
@@ -75,6 +77,7 @@ export default function CreatePost() {
     if (!content.trim() || content === '<p><br></p>') { toast.error('Content is required'); return; }
 
     setSaving(true);
+    setModerationReport(null);
     try {
       const tagArray = tags.split(',').map(t => t.trim()).filter(Boolean);
       const res = await postsApi.create({
@@ -82,8 +85,14 @@ export default function CreatePost() {
       });
       toast.success(isDraft ? 'Draft saved!' : 'Post published!');
       navigate(`/posts/${res.data.id}`);
-    } catch { toast.error('Failed to save post'); }
-    finally { setSaving(false); }
+    } catch (err) {
+      if (!isDraft && err.response?.status === 400 && err.response?.data?.approved === false) {
+        setModerationReport(err.response.data);
+        toast.error('Post rejected by AI moderation.');
+      } else {
+        toast.error('Failed to save post');
+      }
+    } finally { setSaving(false); }
   };
 
   return (
@@ -124,6 +133,8 @@ export default function CreatePost() {
         />
       </div>
 
+      <ModerationReport report={moderationReport} onClose={() => setModerationReport(null)} />
+
       {/* Rich text editor */}
       <ReactQuill
         ref={quillRef}
@@ -160,7 +171,7 @@ export default function CreatePost() {
 
       <div className="editor-toolbar">
         <button className="btn btn-primary btn-lg" onClick={() => handleSubmit(false)} disabled={saving}>
-          {saving ? 'Publishing...' : '🚀 Publish'}
+          {saving ? 'Checking your blog using AI...' : '🚀 Publish'}
         </button>
         <button className="btn btn-secondary" onClick={() => handleSubmit(true)} disabled={saving}>
           Save Draft

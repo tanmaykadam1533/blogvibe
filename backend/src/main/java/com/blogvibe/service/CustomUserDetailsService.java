@@ -19,10 +19,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         com.blogvibe.model.User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        boolean enabled = user.getBanned() == null || !user.getBanned();
+        String roleName = user.getRole() != null ? user.getRole().name() : "ROLE_USER";
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword() != null ? user.getPassword() : "",
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                enabled,
+                true,
+                true,
+                true,
+                List.of(new SimpleGrantedAuthority(roleName))
         );
     }
 }

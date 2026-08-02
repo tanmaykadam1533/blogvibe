@@ -31,6 +31,7 @@ export default api;
 export const authApi = {
   register: (data) => api.post('/api/auth/register', data),
   login: (data) => api.post('/api/auth/login', data),
+  adminLogin: (data) => api.post('/api/auth/admin/login', data),
   me: () => api.get('/api/auth/me'),
 };
 
@@ -77,4 +78,16 @@ export const sharesApi = {
   getUnreadCount: () => api.get('/api/shares/unread-count'),
   markAsRead: (id) => api.patch(`/api/shares/${id}/read`),
   searchUsers: (q) => api.get('/api/shares/search-users', { params: { q } }),
+};
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+export const adminApi = {
+  getStats: () => api.get('/api/admin/stats'),
+  getUsers: (params) => api.get('/api/admin/users', { params }),
+  updateUserRole: (id, role) => api.patch(`/api/admin/users/${id}/role`, null, { params: { role } }),
+  updateUserStatus: (id, banned) => api.patch(`/api/admin/users/${id}/status`, null, { params: { banned } }),
+  deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
+  getPosts: () => api.get('/api/admin/posts'),
+  deletePost: (id) => api.delete(`/api/admin/posts/${id}`),
+  getModerationLogs: () => api.get('/api/admin/moderation-logs'),
 };

@@ -4,6 +4,7 @@ import com.blogvibe.dto.*;
 import com.blogvibe.model.*;
 import com.blogvibe.repository.*;
 import com.blogvibe.service.FileStorageService;
+import com.blogvibe.service.AIService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,8 @@ public class PostController {
     private final LikeRepository likeRepository;
     private final PostImageRepository postImageRepository;
     private final FileStorageService fileStorageService;
+    private final AIService aiService;
+    private final BlogModerationRepository blogModerationRepository;
 
     // ── Get all published posts (paginated) ──────────────────────────────────
     @GetMapping
@@ -75,7 +78,7 @@ public class PostController {
 
     // ── Create post ───────────────────────────────────────────────────────────
     @PostMapping
-    public ResponseEntity<PostDetailDto> createPost(
+    public ResponseEntity<?> createPost(
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
@@ -92,13 +95,30 @@ public class PostController {
                 .author(user)
                 .build();
 
+        if (!request.isDraft()) {
+            ModerationResponse modRes = aiService.moderateBlog(post.getTitle(), post.getContent());
+            if (!modRes.getApproved()) {
+                blogModerationRepository.save(BlogModeration.builder()
+                        .approved(false)
+                        .confidence(modRes.getConfidence())
+                        .reason(modRes.getReason())
+                        .build());
+                return ResponseEntity.badRequest().body(modRes);
+            }
+            blogModerationRepository.save(BlogModeration.builder()
+                    .approved(true)
+                    .confidence(modRes.getConfidence())
+                    .reason(modRes.getReason())
+                    .build());
+        }
+
         postRepository.save(post);
         return ResponseEntity.ok(toDetailDto(post, user.getId()));
     }
 
     // ── Update post ───────────────────────────────────────────────────────────
     @PutMapping("/{id}")
-    public ResponseEntity<PostDetailDto> updatePost(
+    public ResponseEntity<?> updatePost(
             @PathVariable Long id,
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -118,6 +138,25 @@ public class PostController {
         post.setCoverImage(request.getCoverImage());
         post.setStatus(request.isDraft() ? Post.PostStatus.DRAFT : Post.PostStatus.PUBLISHED);
         post.setUpdatedAt(LocalDateTime.now());
+
+        if (!request.isDraft()) {
+            ModerationResponse modRes = aiService.moderateBlog(post.getTitle(), post.getContent());
+            if (!modRes.getApproved()) {
+                blogModerationRepository.save(BlogModeration.builder()
+                        .postId(post.getId())
+                        .approved(false)
+                        .confidence(modRes.getConfidence())
+                        .reason(modRes.getReason())
+                        .build());
+                return ResponseEntity.badRequest().body(modRes);
+            }
+            blogModerationRepository.save(BlogModeration.builder()
+                    .postId(post.getId())
+                    .approved(true)
+                    .confidence(modRes.getConfidence())
+                    .reason(modRes.getReason())
+                    .build());
+        }
 
         postRepository.save(post);
         return ResponseEntity.ok(toDetailDto(post, user.getId()));

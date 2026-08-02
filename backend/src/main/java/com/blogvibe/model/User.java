@@ -33,6 +33,15 @@ public class User {
     private String website;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Role role = Role.ROLE_USER;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean banned = false;
+
+    @Enumerated(EnumType.STRING)
     @Builder.Default
     private AuthProvider provider = AuthProvider.LOCAL;
 

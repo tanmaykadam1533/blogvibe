@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/*/profile").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                // Admin endpoints
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 // Everything else needs authentication
                 .anyRequest().authenticated()
             )

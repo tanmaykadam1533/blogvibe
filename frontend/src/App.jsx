@@ -13,6 +13,8 @@ import Profile from './pages/Profile';
 import MyProfile from './pages/MyProfile';
 import Inbox from './pages/Inbox';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,16 +22,25 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" />;
 }
 
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="spinner" />;
+  if (!user) return <Navigate to="/admin/login" />;
+  if (user.role !== 'ROLE_ADMIN') return <Navigate to="/admin/login" />;
+  return children;
+}
+
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+        <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
         <Navbar />
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
             <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             <Route path="/posts/:id" element={<PostDetail />} />
@@ -38,6 +49,7 @@ function App() {
             <Route path="/edit/:id" element={<ProtectedRoute><EditPost /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
             <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           </Routes>
         </main>
       </BrowserRouter>

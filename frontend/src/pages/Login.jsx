@@ -4,6 +4,8 @@ import { authApi } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
+import RoleSelector from '../components/RoleSelector';
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -30,10 +32,11 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-container">
+      <RoleSelector />
       <div className="card auth-card">
-        <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-sub">Sign in to continue your story</p>
+        <h1 className="auth-title">User Portal</h1>
+        <p className="auth-sub">Sign in to continue reading and creating stories</p>
 
         <button className="google-btn" onClick={handleGoogleLogin}>
           <svg width="20" height="20" viewBox="0 0 24 24">

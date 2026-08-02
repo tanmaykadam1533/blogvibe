@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import { postsApi } from '../api';
 import toast from 'react-hot-toast';
 import { Image, X } from 'lucide-react';
+import ModerationReport from '../components/ModerationReport';
 
 const CATEGORIES = ['Technology', 'Travel', 'Food', 'Lifestyle', 'Health', 'Business', 'Art', 'Science', 'Other'];
 
@@ -17,6 +18,7 @@ export default function EditPost() {
   const [coverPreview, setCoverPreview] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [moderationReport, setModerationReport] = useState(null);
 
   useEffect(() => {
     postsApi.getById(id).then(res => {
@@ -78,13 +80,20 @@ export default function EditPost() {
   const handleSubmit = async (isDraft) => {
     if (!form.title.trim() || !form.content.trim()) { toast.error('Title and content required'); return; }
     setSaving(true);
+    setModerationReport(null);
     try {
       const tagArray = form.tags.split(',').map(t => t.trim()).filter(Boolean);
       await postsApi.update(id, { ...form, tags: tagArray, draft: isDraft });
       toast.success(isDraft ? 'Draft saved!' : 'Post updated!');
       navigate(`/posts/${id}`);
-    } catch { toast.error('Failed to update'); }
-    finally { setSaving(false); }
+    } catch (err) {
+      if (!isDraft && err.response?.status === 400 && err.response?.data?.approved === false) {
+        setModerationReport(err.response.data);
+        toast.error('Post rejected by AI moderation.');
+      } else {
+        toast.error('Failed to update');
+      }
+    } finally { setSaving(false); }
   };
 
   if (loading) return <div className="page-loading"><div className="spinner" /></div>;
@@ -113,6 +122,8 @@ export default function EditPost() {
 
       <input className="editor-title" placeholder="Title..." value={form.title}
         onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} />
+
+      <ModerationReport report={moderationReport} onClose={() => setModerationReport(null)} />
 
       <ReactQuill 
         ref={quillRef} 
@@ -145,7 +156,7 @@ export default function EditPost() {
 
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <button className="btn btn-primary btn-lg" onClick={() => handleSubmit(false)} disabled={saving}>
-          {saving ? 'Saving...' : '✓ Update Post'}
+          {saving ? 'Checking your blog using AI...' : '✓ Update Post'}
         </button>
         <button className="btn btn-secondary" onClick={() => handleSubmit(true)} disabled={saving}>Save as Draft</button>
         <button className="btn btn-ghost" onClick={() => navigate(-1)}>Cancel</button>

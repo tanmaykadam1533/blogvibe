@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sharesApi } from '../api';
-import { Bell, PenSquare, LogOut, User } from 'lucide-react';
+import { Bell, PenSquare, LogOut, User, Shield } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -44,6 +44,14 @@ export default function Navbar() {
         <div className="navbar-links">
           {user ? (
             <>
+              {user.role === 'ROLE_ADMIN' && (
+                <Link to="/admin">
+                  <button className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: 6, borderColor: '#f59e0b', color: '#f59e0b' }}>
+                    <Shield size={16} /> Admin
+                  </button>
+                </Link>
+              )}
+
               <Link to="/create">
                 <button className="btn btn-primary">
                   <PenSquare size={15} /> Write
@@ -86,6 +94,11 @@ export default function Navbar() {
           ) : (
             <>
               <Link to="/login"><button className="btn btn-ghost">Login</button></Link>
+              <Link to="/admin/login">
+                <button className="btn btn-ghost" style={{ color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Shield size={16} /> Admin Portal
+                </button>
+              </Link>
               <Link to="/register"><button className="btn btn-primary">Sign Up</button></Link>
             </>
           )}
