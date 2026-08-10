@@ -52,7 +52,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             User user;
             if (userOptional.isPresent()) {
                 user = userOptional.get();
-                if (user.getProvider() == User.AuthProvider.LOCAL) {
+                if (user.getProvider() == null || user.getProvider() == User.AuthProvider.LOCAL) {
                     user.setProvider(User.AuthProvider.GOOGLE);
                     user.setProviderId(providerId);
                     userRepository.save(user);
