@@ -28,6 +28,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final com.blogvibe.security.OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final com.blogvibe.security.OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final com.blogvibe.security.HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
 
     @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
@@ -51,7 +53,14 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(authorization -> authorization
+                    .authorizationRequestRepository(cookieAuthorizationRequestRepository)
+                )
+                .redirectionEndpoint(redirection -> redirection
+                    .baseUri("/login/oauth2/code/*")
+                )
                 .successHandler(oAuth2LoginSuccessHandler)
+                .failureHandler(oAuth2LoginFailureHandler)
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

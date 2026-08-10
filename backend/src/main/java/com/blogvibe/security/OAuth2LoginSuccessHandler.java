@@ -28,6 +28,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Value("${app.cors.allowed-origins:http://localhost:3000}")
     private String allowedOrigins;
@@ -44,6 +45,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             String providerId = oAuth2User.getAttribute("sub");
 
             if (email == null) {
+                httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
                 getRedirectStrategy().sendRedirect(request, response, primaryFrontendUrl + "/login?error=email_not_found");
                 return;
             }
@@ -55,8 +57,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 if (user.getProvider() == null || user.getProvider() == User.AuthProvider.LOCAL) {
                     user.setProvider(User.AuthProvider.GOOGLE);
                     user.setProviderId(providerId);
-                    userRepository.save(user);
                 }
+                if (user.getRole() == null) user.setRole(Role.ROLE_USER);
+                if (user.getBanned() == null) user.setBanned(false);
+                if (user.getCreatedAt() == null) user.setCreatedAt(LocalDateTime.now());
+                userRepository.save(user);
             } else {
                 user = User.builder()
                         .email(email)
@@ -72,6 +77,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             }
 
             String token = jwtTokenProvider.generateToken(email);
+            httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
 
             String targetUrl = UriComponentsBuilder.fromUriString(primaryFrontendUrl + "/oauth2/redirect")
                     .queryParam("token", token)
@@ -80,6 +86,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         } catch (Exception e) {
             log.error("Error during OAuth2 authentication success processing", e);
+            httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
             String errorMsg = URLEncoder.encode(e.getMessage() != null ? e.getMessage() : "OAuth authentication failed", StandardCharsets.UTF_8);
             getRedirectStrategy().sendRedirect(request, response, primaryFrontendUrl + "/login?error=" + errorMsg);
         }
