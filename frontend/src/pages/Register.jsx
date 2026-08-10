@@ -11,7 +11,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+    const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+    window.location.href = `${apiBaseUrl}/oauth2/authorization/google`;
   };
 
   const handleSubmit = async (e) => {
