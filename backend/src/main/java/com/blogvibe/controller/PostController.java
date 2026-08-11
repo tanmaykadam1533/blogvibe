@@ -93,7 +93,6 @@ public class PostController {
                 .content(request.getContent())
                 .summary(request.getSummary())
                 .category(request.getCategory())
-                .tags(request.getTags() != null ? request.getTags() : new ArrayList<>())
                 .coverImage(request.getCoverImage())
                 .status(request.isDraft() ? Post.PostStatus.DRAFT : Post.PostStatus.PUBLISHED)
                 .author(user)
@@ -101,6 +100,8 @@ public class PostController {
                 .likeCount(0L)
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        post.setTags(request.getTags() != null ? request.getTags() : new ArrayList<>());
 
         if (!request.isDraft()) {
             ModerationResponse modRes = aiService.moderateBlog(post.getTitle(), post.getContent());
@@ -111,7 +112,7 @@ public class PostController {
             saveModerationLogSilently(null, true, modRes.getConfidence(), modRes.getReason());
         }
 
-        savePostWithFallback(post);
+        postRepository.save(post);
         return ResponseEntity.ok(toDetailDto(post, user.getId()));
     }
 
@@ -147,7 +148,7 @@ public class PostController {
             saveModerationLogSilently(post.getId(), true, modRes.getConfidence(), modRes.getReason());
         }
 
-        savePostWithFallback(post);
+        postRepository.save(post);
         return ResponseEntity.ok(toDetailDto(post, user.getId()));
     }
 
@@ -161,20 +162,6 @@ public class PostController {
                     .build());
         } catch (Exception e) {
             log.warn("Could not save blog_moderation log table entry: {}", e.getMessage());
-        }
-    }
-
-    private void savePostWithFallback(Post post) {
-        try {
-            postRepository.save(post);
-        } catch (DataAccessException e) {
-            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("post_tags")) {
-                log.warn("Table 'post_tags' is missing in the database. Saving post without tags as fallback.");
-                post.setTags(new ArrayList<>());
-                postRepository.save(post);
-            } else {
-                throw e;
-            }
         }
     }
 

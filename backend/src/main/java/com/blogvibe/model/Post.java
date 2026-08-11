@@ -3,8 +3,10 @@ package com.blogvibe.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "posts")
@@ -33,11 +35,26 @@ public class Post {
 
     private String category;
 
-    @ElementCollection
-    @CollectionTable(name = "post_tags", joinColumns = @JoinColumn(name = "post_id"))
-    @Column(name = "tag")
-    @Builder.Default
-    private List<String> tags = new ArrayList<>();
+    @Column(name = "tags", length = 1000)
+    private String tags;
+
+    public List<String> getTags() {
+        if (tags == null || tags.isBlank()) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(tags.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    public void setTags(List<String> tagList) {
+        if (tagList == null || tagList.isEmpty()) {
+            this.tags = "";
+        } else {
+            this.tags = String.join(",", tagList);
+        }
+    }
 
     @Column(name = "view_count", nullable = false)
     @Builder.Default
