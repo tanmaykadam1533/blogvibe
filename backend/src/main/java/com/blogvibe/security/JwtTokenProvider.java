@@ -5,7 +5,10 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 @Component
@@ -18,7 +21,19 @@ public class JwtTokenProvider {
     private long jwtExpiration;
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-512");
+            byte[] keyBytes = digest.digest(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            return Keys.hmacShaKeyFor(keyBytes);
+        } catch (NoSuchAlgorithmException e) {
+            byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+            if (keyBytes.length < 64) {
+                byte[] padded = new byte[64];
+                System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
+                return Keys.hmacShaKeyFor(padded);
+            }
+            return Keys.hmacShaKeyFor(keyBytes);
+        }
     }
 
     public String generateToken(String email) {
