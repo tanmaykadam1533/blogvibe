@@ -42,6 +42,21 @@ export const getErrorMessage = (error) => {
   return error.message || 'An unexpected error occurred';
 };
 
+export const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  return `${apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
+export const getFormattedContent = (content) => {
+  if (!content) return '';
+  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  return content.replaceAll('src="/uploads/', `src="${apiBaseUrl}/uploads/`);
+};
+
 export default api;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────

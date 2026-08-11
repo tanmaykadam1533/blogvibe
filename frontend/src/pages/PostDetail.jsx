@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { postsApi } from '../api';
+import { postsApi, getImageUrl, getFormattedContent } from '../api';
 import { useAuth } from '../context/AuthContext';
 import ShareModal from '../components/ShareModal';
 import toast from 'react-hot-toast';
@@ -25,7 +25,7 @@ function CommentItem({ comment, postId, onDelete, currentUserId }) {
   return (
     <div className="comment">
       <img
-        src={comment.author?.profilePicture || `https://ui-avatars.com/api/?name=${comment.author?.name}&background=e89c5a&color=0f0e0d`}
+        src={getImageUrl(comment.author?.profilePicture) || `https://ui-avatars.com/api/?name=${comment.author?.name}&background=e89c5a&color=0f0e0d`}
         alt="" className="avatar"
       />
       <div className="comment-content">
@@ -142,7 +142,7 @@ export default function PostDetail() {
     <div className="post-detail">
       {post.coverImage && (
         <div className="post-detail-cover">
-          <img src={post.coverImage} alt={post.title} />
+          <img src={getImageUrl(post.coverImage)} alt={post.title} />
         </div>
       )}
 
@@ -158,7 +158,7 @@ export default function PostDetail() {
         <Link to={`/users/${post.author?.id}`}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <img
-              src={post.author?.profilePicture || `https://ui-avatars.com/api/?name=${post.author?.name}&background=e89c5a&color=0f0e0d`}
+              src={getImageUrl(post.author?.profilePicture) || `https://ui-avatars.com/api/?name=${post.author?.name}&background=e89c5a&color=0f0e0d`}
               alt="" className="avatar"
             />
             <div>
@@ -189,7 +189,7 @@ export default function PostDetail() {
         </div>
       )}
 
-      <div className="post-body" dangerouslySetInnerHTML={{ __html: post.content }} />
+      <div className="post-body" dangerouslySetInnerHTML={{ __html: getFormattedContent(post.content) }} />
 
       {/* Post actions */}
       <div className="post-actions">

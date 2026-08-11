@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { getImageUrl } from '../api';
 
 export default function PostCard({ post }) {
   const initials = post.author?.name?.charAt(0).toUpperCase();
@@ -10,7 +11,7 @@ export default function PostCard({ post }) {
       <div className="card post-card">
         {post.coverImage && (
           <div className="post-card-cover">
-            <img src={post.coverImage} alt={post.title} />
+            <img src={getImageUrl(post.coverImage)} alt={post.title} />
           </div>
         )}
         <div className="post-card-body">
@@ -29,7 +30,7 @@ export default function PostCard({ post }) {
           <div className="post-card-meta">
             <div className="author-chip">
               {post.author?.profilePicture
-                ? <img src={post.author.profilePicture} alt="" className="avatar" />
+                ? <img src={getImageUrl(post.author.profilePicture)} alt="" className="avatar" />
                 : <div className="avatar" style={{ background: 'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.8rem', fontWeight:700, color:'#0f0e0d' }}>{initials}</div>
               }
               <div>
