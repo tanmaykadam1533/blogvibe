@@ -2,7 +2,7 @@ import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { postsApi, getErrorMessage } from '../api';
+import { postsApi, getErrorMessage, getImageUrl } from '../api';
 import toast from 'react-hot-toast';
 import { Image, X } from 'lucide-react';
 import ModerationReport from '../components/ModerationReport';
@@ -35,7 +35,7 @@ export default function CreatePost() {
         const toastId = toast.loading('Uploading image...');
         try {
           const res = await postsApi.uploadStandaloneImage(file);
-          const url = res.data.url;
+          const url = getImageUrl(res.data.url);
           const quill = quillRef.current.getEditor();
           const range = quill.getSelection(true);
           const idx = range ? range.index : 0;
@@ -68,7 +68,7 @@ export default function CreatePost() {
     try {
       const res = await postsApi.uploadStandaloneImage(file);
       setCoverImage(res.data.url);
-      setCoverPreview(URL.createObjectURL(file));
+      setCoverPreview(getImageUrl(res.data.url));
       toast.success('Cover image uploaded');
     } catch (err) { toast.error(getErrorMessage(err) || 'Failed to upload image'); }
   };

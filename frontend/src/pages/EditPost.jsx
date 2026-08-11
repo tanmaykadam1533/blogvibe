@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { postsApi, getErrorMessage } from '../api';
+import { postsApi, getErrorMessage, getImageUrl } from '../api';
 import toast from 'react-hot-toast';
 import { Image, X } from 'lucide-react';
 import ModerationReport from '../components/ModerationReport';
@@ -25,7 +25,7 @@ export default function EditPost() {
       const p = res.data;
       setForm({ title: p.title, content: p.content, summary: p.summary || '', category: p.category || '',
         tags: p.tags?.join(', ') || '', coverImage: p.coverImage || '', draft: p.status === 'DRAFT' });
-      if (p.coverImage) setCoverPreview(p.coverImage);
+      if (p.coverImage) setCoverPreview(getImageUrl(p.coverImage));
     }).finally(() => setLoading(false));
   }, [id]);
 
@@ -35,7 +35,7 @@ export default function EditPost() {
     try {
       const res = await postsApi.uploadStandaloneImage(file);
       setForm(f => ({ ...f, coverImage: res.data.url }));
-      setCoverPreview(URL.createObjectURL(file));
+      setCoverPreview(getImageUrl(res.data.url));
       toast.success('Cover image uploaded');
     } catch (err) { toast.error(getErrorMessage(err) || 'Upload failed'); }
   };
@@ -52,7 +52,7 @@ export default function EditPost() {
         const toastId = toast.loading('Uploading image...');
         try {
           const res = await postsApi.uploadStandaloneImage(file);
-          const url = res.data.url;
+          const url = getImageUrl(res.data.url);
           const quill = quillRef.current.getEditor();
           const range = quill.getSelection(true);
           const idx = range ? range.index : 0;

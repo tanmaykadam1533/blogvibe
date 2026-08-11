@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { usersApi, postsApi } from '../api';
+import { usersApi, postsApi, getImageUrl } from '../api';
 import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/PostCard';
 import toast from 'react-hot-toast';
@@ -60,7 +60,7 @@ export default function MyProfile() {
       <div className="profile-header">
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <img
-            src={profile.profilePicture || `https://ui-avatars.com/api/?name=${profile.name}&background=e89c5a&color=0f0e0d&size=120`}
+            src={getImageUrl(profile.profilePicture) || `https://ui-avatars.com/api/?name=${profile.name}&background=e89c5a&color=0f0e0d&size=120`}
             alt={profile.name} className="avatar-xl"
           />
           <button
