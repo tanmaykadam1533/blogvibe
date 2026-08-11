@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { authApi } from '../api';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { authApi, getErrorMessage } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -9,8 +9,16 @@ import RoleSelector from '../components/RoleSelector';
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      toast.error(decodeURIComponent(error));
+    }
+  }, [searchParams]);
 
   const handleGoogleLogin = () => {
     const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -26,7 +34,7 @@ export default function Login() {
       navigate('/');
       toast.success('Welcome back!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

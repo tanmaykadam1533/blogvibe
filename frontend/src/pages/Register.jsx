@@ -1,14 +1,22 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { authApi } from '../api';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { authApi, getErrorMessage } from '../api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function Register() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      toast.error(decodeURIComponent(error));
+    }
+  }, [searchParams]);
 
   const handleGoogleLogin = () => {
     const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -25,7 +33,7 @@ export default function Register() {
       navigate('/');
       toast.success('Account created! Welcome to BlogVibe 🎉');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { authApi } from '../api';
+import { authApi, getErrorMessage } from '../api';
 
 export default function OAuth2RedirectHandler() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const processedRef = useRef(false);
 
@@ -13,9 +14,8 @@ export default function OAuth2RedirectHandler() {
     if (processedRef.current) return;
     processedRef.current = true;
 
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const error = params.get('error');
+    const token = searchParams.get('token');
+    const error = searchParams.get('error');
 
     if (token) {
       localStorage.setItem('token', token);
@@ -26,19 +26,21 @@ export default function OAuth2RedirectHandler() {
           navigate('/', { replace: true });
         })
         .catch((err) => {
-          console.error('Google login error:', err);
-          toast.error(err.response?.data?.message || 'Failed to login with Google.');
-          navigate('/login', { replace: true });
+          console.error('Google login verification error:', err);
+          localStorage.removeItem('token');
+          const errMsg = getErrorMessage(err);
+          navigate(`/login?error=${encodeURIComponent(errMsg)}`, { replace: true });
         });
     } else {
-      toast.error(error || 'Authentication failed');
-      navigate('/login', { replace: true });
+      const errMsg = error ? decodeURIComponent(error) : 'OAuth authentication failed.';
+      navigate(`/login?error=${encodeURIComponent(errMsg)}`, { replace: true });
     }
-  }, [navigate, login]);
+  }, [searchParams, navigate, login]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <h2>Logging you in...</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: '1rem' }}>
+      <div className="spinner" style={{ width: '40px', height: '40px' }} />
+      <h2 style={{ fontSize: '1.25rem', color: 'var(--text)' }}>Logging you in...</h2>
     </div>
   );
 }

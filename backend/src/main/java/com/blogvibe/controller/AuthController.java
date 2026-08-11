@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -37,6 +38,8 @@ public class AuthController {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .provider(User.AuthProvider.LOCAL)
                 .role(Role.ROLE_USER)
+                .banned(false)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         userRepository.save(user);

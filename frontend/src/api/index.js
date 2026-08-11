@@ -13,17 +13,34 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 - clear token and redirect to login
+// Handle 401 - clear token and redirect to login if not already on auth pages
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      const pathname = window.location.pathname;
+      const isAuthPage = ['/login', '/register', '/oauth2/redirect', '/admin/login'].includes(pathname);
+      if (!isAuthPage) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
 );
+
+export const getErrorMessage = (error) => {
+  if (error.response?.data) {
+    const data = error.response.data;
+    if (typeof data === 'string' && data.trim()) return data;
+    if (data.message && typeof data.message === 'string') return data.message;
+    if (typeof data === 'object') {
+      const values = Object.values(data).filter((v) => typeof v === 'string' && v.trim());
+      if (values.length > 0) return values.join('; ');
+    }
+  }
+  return error.message || 'An unexpected error occurred';
+};
 
 export default api;
 
