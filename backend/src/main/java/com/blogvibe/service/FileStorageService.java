@@ -31,9 +31,9 @@ public class FileStorageService {
             Path targetLocation = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            return "http://localhost:" + serverPort + "/uploads/images/" + filename;
+            return "/uploads/images/" + filename;
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to store file", ex);
+            throw new RuntimeException("Failed to store file: " + ex.getMessage(), ex);
         }
     }
 

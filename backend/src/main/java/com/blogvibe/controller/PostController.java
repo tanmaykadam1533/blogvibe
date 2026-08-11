@@ -93,6 +93,9 @@ public class PostController {
                 .coverImage(request.getCoverImage())
                 .status(request.isDraft() ? Post.PostStatus.DRAFT : Post.PostStatus.PUBLISHED)
                 .author(user)
+                .viewCount(0L)
+                .likeCount(0L)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         if (!request.isDraft()) {

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { postsApi } from '../api';
+import { postsApi, getErrorMessage } from '../api';
 import toast from 'react-hot-toast';
 import { Image, X } from 'lucide-react';
 import ModerationReport from '../components/ModerationReport';
@@ -36,7 +36,8 @@ export default function EditPost() {
       const res = await postsApi.uploadStandaloneImage(file);
       setForm(f => ({ ...f, coverImage: res.data.url }));
       setCoverPreview(URL.createObjectURL(file));
-    } catch { toast.error('Upload failed'); }
+      toast.success('Cover image uploaded');
+    } catch (err) { toast.error(getErrorMessage(err) || 'Upload failed'); }
   };
 
   const imageHandler = () => {
@@ -54,9 +55,10 @@ export default function EditPost() {
           const url = res.data.url;
           const quill = quillRef.current.getEditor();
           const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, 'image', url);
+          const idx = range ? range.index : 0;
+          quill.insertEmbed(idx, 'image', url);
           toast.success('Image uploaded', { id: toastId });
-        } catch { toast.error('Failed to upload image', { id: toastId }); }
+        } catch (err) { toast.error(getErrorMessage(err) || 'Failed to upload image', { id: toastId }); }
       }
     };
   };
@@ -91,7 +93,7 @@ export default function EditPost() {
         setModerationReport(err.response.data);
         toast.error('Post rejected by AI moderation.');
       } else {
-        toast.error('Failed to update');
+        toast.error(getErrorMessage(err) || 'Failed to update');
       }
     } finally { setSaving(false); }
   };
