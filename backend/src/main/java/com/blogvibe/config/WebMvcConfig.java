@@ -16,19 +16,26 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        Path path = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path imagesPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        Path uploadsPath = imagesPath.getParent() != null ? imagesPath.getParent() : imagesPath;
+        
         try {
-            Files.createDirectories(path);
+            Files.createDirectories(imagesPath);
         } catch (Exception ignored) {}
 
-        String location = path.toUri().toString();
-        if (!location.endsWith("/")) {
-            location = location + "/";
+        String imagesLocation = imagesPath.toUri().toString();
+        if (!imagesLocation.endsWith("/")) {
+            imagesLocation = imagesLocation + "/";
+        }
+
+        String uploadsLocation = uploadsPath.toUri().toString();
+        if (!uploadsLocation.endsWith("/")) {
+            uploadsLocation = uploadsLocation + "/";
         }
 
         registry.addResourceHandler("/uploads/images/**")
-                .addResourceLocations(location);
+                .addResourceLocations(imagesLocation);
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(location);
+                .addResourceLocations(uploadsLocation);
     }
 }
