@@ -29,12 +29,16 @@ public class AIService {
     }
 
     public ModerationResponse moderateBlog(String title, String content) {
-        if (geminiApiKey == null || geminiApiKey.isBlank() || "dummy-gemini-key".equalsIgnoreCase(geminiApiKey.trim())) {
-            log.warn("Gemini API key is missing or dummy. Auto-approving blog post.");
+        String cleanedKey = geminiApiKey != null 
+                ? geminiApiKey.trim().replaceAll("^\"|\"$", "").replaceAll("^'|'$", "").trim()
+                : "";
+
+        if (cleanedKey.isEmpty() || "dummy-gemini-key".equalsIgnoreCase(cleanedKey)) {
+            log.warn("Gemini API key is missing or dummy. Rejecting post per strict AI monitoring policy.");
             return ModerationResponse.builder()
-                    .approved(true)
-                    .reason("Auto-approved (Gemini API key not configured).")
-                    .confidence(100)
+                    .approved(false)
+                    .reason("AI Content Moderation is required: Please configure a valid GEMINI_API_KEY in your backend .env file.")
+                    .confidence(0)
                     .categories(new HashMap<>())
                     .build();
         }
@@ -51,8 +55,8 @@ public class AIService {
 
         List<String> endpointUrls = List.of(
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
-            "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=",
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key="
         );
 
         try {
@@ -60,7 +64,7 @@ public class AIService {
 
             for (String baseUrl : endpointUrls) {
                 try {
-                    String url = baseUrl + geminiApiKey.trim();
+                    String url = baseUrl + cleanedKey;
                     
                     String responseStr = restClient.post()
                             .uri(url)
