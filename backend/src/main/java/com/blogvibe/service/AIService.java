@@ -54,9 +54,9 @@ public class AIService {
         );
 
         List<String> endpointUrls = List.of(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=",
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=",
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key="
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
         );
 
         try {
