@@ -110,3 +110,13 @@ CREATE TABLE IF NOT EXISTS shares (
   INDEX idx_shares_recipient (recipient_id),
   INDEX idx_shares_unread    (recipient_id, is_read)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ── Blog Moderation ────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS blog_moderation (
+  id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+  post_id     BIGINT,
+  approved    BOOLEAN NOT NULL,
+  confidence  INT,
+  reason      TEXT,
+  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -18,9 +18,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Slf4j
 public class PostController {
 
     private final PostRepository postRepository;
@@ -101,21 +105,13 @@ public class PostController {
         if (!request.isDraft()) {
             ModerationResponse modRes = aiService.moderateBlog(post.getTitle(), post.getContent());
             if (!modRes.getApproved()) {
-                blogModerationRepository.save(BlogModeration.builder()
-                        .approved(false)
-                        .confidence(modRes.getConfidence())
-                        .reason(modRes.getReason())
-                        .build());
+                saveModerationLogSilently(null, false, modRes.getConfidence(), modRes.getReason());
                 return ResponseEntity.badRequest().body(modRes);
             }
-            blogModerationRepository.save(BlogModeration.builder()
-                    .approved(true)
-                    .confidence(modRes.getConfidence())
-                    .reason(modRes.getReason())
-                    .build());
+            saveModerationLogSilently(null, true, modRes.getConfidence(), modRes.getReason());
         }
 
-        postRepository.save(post);
+        savePostWithFallback(post);
         return ResponseEntity.ok(toDetailDto(post, user.getId()));
     }
 
@@ -145,24 +141,41 @@ public class PostController {
         if (!request.isDraft()) {
             ModerationResponse modRes = aiService.moderateBlog(post.getTitle(), post.getContent());
             if (!modRes.getApproved()) {
-                blogModerationRepository.save(BlogModeration.builder()
-                        .postId(post.getId())
-                        .approved(false)
-                        .confidence(modRes.getConfidence())
-                        .reason(modRes.getReason())
-                        .build());
+                saveModerationLogSilently(post.getId(), false, modRes.getConfidence(), modRes.getReason());
                 return ResponseEntity.badRequest().body(modRes);
             }
-            blogModerationRepository.save(BlogModeration.builder()
-                    .postId(post.getId())
-                    .approved(true)
-                    .confidence(modRes.getConfidence())
-                    .reason(modRes.getReason())
-                    .build());
+            saveModerationLogSilently(post.getId(), true, modRes.getConfidence(), modRes.getReason());
         }
 
-        postRepository.save(post);
+        savePostWithFallback(post);
         return ResponseEntity.ok(toDetailDto(post, user.getId()));
+    }
+
+    private void saveModerationLogSilently(Long postId, boolean approved, Integer confidence, String reason) {
+        try {
+            blogModerationRepository.save(BlogModeration.builder()
+                    .postId(postId)
+                    .approved(approved)
+                    .confidence(confidence)
+                    .reason(reason)
+                    .build());
+        } catch (Exception e) {
+            log.warn("Could not save blog_moderation log table entry: {}", e.getMessage());
+        }
+    }
+
+    private void savePostWithFallback(Post post) {
+        try {
+            postRepository.save(post);
+        } catch (DataAccessException e) {
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("post_tags")) {
+                log.warn("Table 'post_tags' is missing in the database. Saving post without tags as fallback.");
+                post.setTags(new ArrayList<>());
+                postRepository.save(post);
+            } else {
+                throw e;
+            }
+        }
     }
 
     // ── Delete post ───────────────────────────────────────────────────────────
