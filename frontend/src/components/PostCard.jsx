@@ -11,7 +11,14 @@ export default function PostCard({ post }) {
       <div className="card post-card">
         {post.coverImage && (
           <div className="post-card-cover">
-            <img src={getImageUrl(post.coverImage)} alt={post.title} />
+            <img
+              src={getImageUrl(post.coverImage)}
+              alt={post.title}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80';
+              }}
+            />
           </div>
         )}
         <div className="post-card-body">

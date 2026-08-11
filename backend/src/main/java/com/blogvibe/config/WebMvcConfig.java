@@ -15,6 +15,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private String uploadDir;
 
     @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/uploads/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "HEAD", "OPTIONS")
+                .allowCredentials(false);
+    }
+
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path imagesPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         Path uploadsPath = imagesPath.getParent() != null ? imagesPath.getParent() : imagesPath;
@@ -34,8 +42,19 @@ public class WebMvcConfig implements WebMvcConfigurer {
         }
 
         registry.addResourceHandler("/uploads/images/**")
-                .addResourceLocations(imagesLocation);
+                .addResourceLocations(
+                        "file:./uploads/images/",
+                        "file:./backend/uploads/images/",
+                        "file:../uploads/images/",
+                        imagesLocation
+                );
+
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadsLocation);
+                .addResourceLocations(
+                        "file:./uploads/",
+                        "file:./backend/uploads/",
+                        "file:../uploads/",
+                        uploadsLocation
+                );
     }
 }
