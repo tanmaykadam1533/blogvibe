@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { usersApi, postsApi } from '../api';
+import { usersApi, postsApi, getImageUrl } from '../api';
 import PostCard from '../components/PostCard';
 import { MapPin, Globe, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -57,7 +57,7 @@ export default function Profile() {
       <div className="profile-header">
         <img
           src={
-            profile.profilePicture ||
+            getImageUrl(profile.profilePicture) ||
             `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=e89c5a&color=0f0e0d&size=120`
           }
           alt={profile.name}

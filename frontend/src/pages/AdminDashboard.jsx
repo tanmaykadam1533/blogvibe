@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { adminApi } from '../api';
+import { adminApi, getImageUrl } from '../api';
 import toast from 'react-hot-toast';
 import { 
   Users, 
@@ -311,7 +311,7 @@ export default function AdminDashboard() {
                     <td>
                       <div className="user-cell">
                         {u.profilePicture ? (
-                          <img src={u.profilePicture} alt={u.name} className="avatar-sm" />
+                          <img src={getImageUrl(u.profilePicture)} alt={u.name} className="avatar-sm" />
                         ) : (
                           <div className="avatar-placeholder">{u.name?.charAt(0).toUpperCase() || 'U'}</div>
                         )}

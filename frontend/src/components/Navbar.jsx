@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { sharesApi } from '../api';
+import { sharesApi, getImageUrl } from '../api';
 import { Bell, PenSquare, LogOut, User, Shield } from 'lucide-react';
 
 export default function Navbar() {
@@ -77,7 +77,7 @@ export default function Navbar() {
 
               <Link to="/profile">
                 {user.profilePicture ? (
-                  <img src={user.profilePicture} alt={user.name} className="avatar"
+                  <img src={getImageUrl(user.profilePicture)} alt={user.name} className="avatar"
                     style={{ cursor: 'pointer', border: '2px solid transparent', transition: 'border-color .2s' }}
                     onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
                     onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}

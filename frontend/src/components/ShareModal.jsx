@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { sharesApi } from '../api';
+import { sharesApi, getImageUrl } from '../api';
 import toast from 'react-hot-toast';
 import { Search, X, Send } from 'lucide-react';
 
@@ -48,7 +48,7 @@ export default function ShareModal({ post, onClose }) {
 
         {selected ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem', background: 'var(--accent-dim)', borderRadius: '8px', marginBottom: '1rem' }}>
-            <img src={selected.profilePicture || `https://ui-avatars.com/api/?name=${selected.name}`} alt="" className="avatar" />
+            <img src={getImageUrl(selected.profilePicture) || `https://ui-avatars.com/api/?name=${selected.name}`} alt="" className="avatar" />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 600 }}>{selected.name}</div>
               <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selected.email}</div>
@@ -76,7 +76,7 @@ export default function ShareModal({ post, onClose }) {
                     onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-hover)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <img src={u.profilePicture || `https://ui-avatars.com/api/?name=${u.name}`} alt="" className="avatar" />
+                    <img src={getImageUrl(u.profilePicture) || `https://ui-avatars.com/api/?name=${u.name}`} alt="" className="avatar" />
                     <div>
                       <div style={{ fontWeight: 500 }}>{u.name}</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{u.email}</div>

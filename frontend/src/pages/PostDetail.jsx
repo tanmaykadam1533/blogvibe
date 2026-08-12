@@ -225,7 +225,7 @@ export default function PostDetail() {
           <form onSubmit={handleComment} style={{ marginBottom: '2rem' }}>
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
               <img
-                src={user.profilePicture || `https://ui-avatars.com/api/?name=${user.name}&background=e89c5a&color=0f0e0d`}
+                src={getImageUrl(user.profilePicture) || `https://ui-avatars.com/api/?name=${user.name}&background=e89c5a&color=0f0e0d`}
                 alt="" className="avatar"
               />
               <div style={{ flex: 1 }}>

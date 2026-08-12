@@ -44,17 +44,26 @@ export const getErrorMessage = (error) => {
 
 export const getImageUrl = (url) => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+  if (url.startsWith('data:')) return url;
+
+  const apiBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080').replace(/\/+$/, '');
+
+  if (url.includes('/uploads/')) {
+    const uploadPath = url.substring(url.indexOf('/uploads/'));
+    return `${apiBaseUrl}${uploadPath}`;
+  }
+
+  if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
-  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
   return `${apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
 export const getFormattedContent = (content) => {
   if (!content) return '';
-  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-  return content.replaceAll('src="/uploads/', `src="${apiBaseUrl}/uploads/`);
+  const apiBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080').replace(/\/+$/, '');
+  return content.replace(/src=["'](?:https?:\/\/[^/]+)?(\/uploads\/[^"']+)["']/g, `src="${apiBaseUrl}$1"`);
 };
 
 export default api;

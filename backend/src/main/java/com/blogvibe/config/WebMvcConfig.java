@@ -41,12 +41,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
             uploadsLocation = uploadsLocation + "/";
         }
 
+        String imagesPathStr = "file:" + imagesPath.toString().replace("\\", "/") + "/";
+        String uploadsPathStr = "file:" + uploadsPath.toString().replace("\\", "/") + "/";
+
         registry.addResourceHandler("/uploads/images/**")
                 .addResourceLocations(
                         "file:./uploads/images/",
                         "file:./backend/uploads/images/",
                         "file:../uploads/images/",
-                        imagesLocation
+                        imagesLocation,
+                        imagesPathStr
                 );
 
         registry.addResourceHandler("/uploads/**")
@@ -54,7 +58,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "file:./uploads/",
                         "file:./backend/uploads/",
                         "file:../uploads/",
-                        uploadsLocation
+                        uploadsLocation,
+                        uploadsPathStr
                 );
     }
 }

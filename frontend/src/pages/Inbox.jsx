@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { sharesApi } from '../api';
+import { sharesApi, getImageUrl } from '../api';
 import { formatDistanceToNow } from 'date-fns';
 import { Inbox as InboxIcon, CheckCheck, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -91,7 +91,7 @@ export default function Inbox() {
               {/* Sender avatar + info */}
               <img
                 src={
-                  share.sender?.profilePicture ||
+                  getImageUrl(share.sender?.profilePicture) ||
                   `https://ui-avatars.com/api/?name=${encodeURIComponent(share.sender?.name || 'U')}&background=e89c5a&color=0f0e0d`
                 }
                 alt={share.sender?.name}
@@ -130,7 +130,7 @@ export default function Inbox() {
                   >
                     {share.post?.coverImage && (
                       <img
-                        src={share.post.coverImage}
+                        src={getImageUrl(share.post.coverImage)}
                         alt=""
                         style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
                       />
