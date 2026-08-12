@@ -4,7 +4,7 @@ import { postsApi, getImageUrl, getFormattedContent } from '../api';
 import { useAuth } from '../context/AuthContext';
 import ShareModal from '../components/ShareModal';
 import toast from 'react-hot-toast';
-import { Heart, MessageCircle, Share2, Edit, Trash2, Eye } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Eye } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
 function CommentItem({ comment, postId, onDelete, currentUserId }) {
@@ -124,19 +124,8 @@ export default function PostDetail() {
     } catch { toast.error('Failed to delete'); }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this post?')) return;
-    try {
-      await postsApi.delete(id);
-      toast.success('Post deleted');
-      navigate('/');
-    } catch { toast.error('Failed to delete'); }
-  };
-
   if (loading) return <div className="page-loading"><div className="spinner" /></div>;
   if (!post) return null;
-
-  const isAuthor = user?.id === post.author?.id;
 
   return (
     <div className="post-detail">
@@ -181,13 +170,6 @@ export default function PostDetail() {
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Eye size={14} /> {post.viewCount}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Heart size={14} /> {likeCount}</span>
         </div>
-
-        {isAuthor && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Link to={`/edit/${post.id}`}><button className="btn btn-secondary btn-sm"><Edit size={14} /> Edit</button></Link>
-            <button className="btn btn-danger btn-sm" onClick={handleDelete}><Trash2 size={14} /></button>
-          </div>
-        )}
       </div>
 
       {post.tags?.length > 0 && (

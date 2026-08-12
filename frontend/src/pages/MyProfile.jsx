@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { usersApi, postsApi, getImageUrl } from '../api';
 import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/PostCard';
 import toast from 'react-hot-toast';
-import { Camera, Edit3, Check, X } from 'lucide-react';
+import { Camera, Edit3, Check, X, Edit } from 'lucide-react';
 
 export default function MyProfile() {
   const { user, setUser } = useAuth();
@@ -109,7 +110,31 @@ export default function MyProfile() {
         </div>
       ) : (
         <div className="posts-grid">
-          {posts.map(p => <PostCard key={p.id} post={p} />)}
+          {posts.map(p => (
+            <div key={p.id} style={{ position: 'relative' }}>
+              <PostCard post={p} />
+              <Link
+                to={`/edit/${p.id}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute', top: '0.75rem', right: '0.75rem',
+                  background: 'var(--accent)', color: '#0f0e0d',
+                  border: 'none', borderRadius: '8px',
+                  padding: '0.35rem 0.7rem',
+                  display: 'flex', alignItems: 'center', gap: '0.3rem',
+                  fontSize: '0.8rem', fontWeight: 600,
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  zIndex: 2,
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)'; }}
+              >
+                <Edit size={13} /> Edit
+              </Link>
+            </div>
+          ))}
         </div>
       )}
     </div>
