@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { postsApi, getImageUrl, getFormattedContent } from '../api';
+import { postsApi, getImageUrl, getFormattedContent, getPlaceholderImage } from '../api';
 import { useAuth } from '../context/AuthContext';
 import ShareModal from '../components/ShareModal';
 import toast from 'react-hot-toast';
@@ -127,20 +127,20 @@ export default function PostDetail() {
   if (loading) return <div className="page-loading"><div className="spinner" /></div>;
   if (!post) return null;
 
+  const placeholder = getPlaceholderImage(post.category, post.title);
+
   return (
     <div className="post-detail">
-      {post.coverImage && (
-        <div className="post-detail-cover">
-          <img
-            src={getImageUrl(post.coverImage)}
-            alt={post.title}
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80';
-            }}
-          />
-        </div>
-      )}
+      <div className="post-detail-cover">
+        <img
+          src={post.coverImage ? getImageUrl(post.coverImage) : placeholder}
+          alt={post.title}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = placeholder;
+          }}
+        />
+      </div>
 
       {post.category && (
         <div style={{ marginBottom: '1rem' }}>

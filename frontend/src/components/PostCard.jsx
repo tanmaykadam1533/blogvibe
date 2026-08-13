@@ -1,26 +1,25 @@
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { getImageUrl } from '../api';
+import { getImageUrl, getPlaceholderImage } from '../api';
 
 export default function PostCard({ post }) {
   const initials = post.author?.name?.charAt(0).toUpperCase();
+  const placeholder = getPlaceholderImage(post.category, post.title);
 
   return (
     <Link to={`/posts/${post.id}`}>
       <div className="card post-card">
-        {post.coverImage && (
-          <div className="post-card-cover">
-            <img
-              src={getImageUrl(post.coverImage)}
-              alt={post.title}
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80';
-              }}
-            />
-          </div>
-        )}
+        <div className="post-card-cover">
+          <img
+            src={post.coverImage ? getImageUrl(post.coverImage) : placeholder}
+            alt={post.title}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = placeholder;
+            }}
+          />
+        </div>
         <div className="post-card-body">
           {post.category && <div className="post-card-category">{post.category}</div>}
           <h2 className="post-card-title">{post.title}</h2>

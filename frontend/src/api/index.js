@@ -66,6 +66,40 @@ export const getFormattedContent = (content) => {
   return content.replace(/src=["'](?:https?:\/\/[^/]+)?(\/uploads\/[^"']+)["']/g, `src="${apiBaseUrl}$1"`);
 };
 
+const CATEGORY_IMAGES = {
+  Technology: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+  Travel:     'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80',
+  Food:       'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+  Lifestyle:  'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80',
+  Health:     'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+  Business:   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+  Art:        'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=800&q=80',
+  Science:    'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=800&q=80',
+  Other:      'https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&w=800&q=80',
+};
+
+const GENERIC_IMAGES = [
+  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
+];
+
+export const getPlaceholderImage = (category, title = '') => {
+  if (category && CATEGORY_IMAGES[category]) {
+    return CATEGORY_IMAGES[category];
+  }
+  // Use title to pick a consistent but varied image
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    hash = ((hash << 5) - hash) + title.charCodeAt(i);
+    hash |= 0;
+  }
+  return GENERIC_IMAGES[Math.abs(hash) % GENERIC_IMAGES.length];
+};
+
 export default api;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
