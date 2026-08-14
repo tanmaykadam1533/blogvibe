@@ -45,16 +45,13 @@ export const getErrorMessage = (error) => {
 export const getImageUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('data:')) return url;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
   const apiBaseUrl = (process.env.REACT_APP_API_URL || 'http://localhost:8080').replace(/\/+$/, '');
 
   if (url.includes('/uploads/')) {
     const uploadPath = url.substring(url.indexOf('/uploads/'));
     return `${apiBaseUrl}${uploadPath}`;
-  }
-
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
   }
 
   return `${apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
